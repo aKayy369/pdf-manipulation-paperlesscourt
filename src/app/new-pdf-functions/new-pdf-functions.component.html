@@ -1,0 +1,19 @@
+<div class="canvas-container">
+  <canvas id="pdfCanvas" 
+          (mousedown)="onMouseDown($event)" 
+          (mousemove)="onMouseMove($event)" 
+          (mouseup)="onMouseUp()" 
+          (mouseleave)="onMouseLeave()" 
+          (wheel)="onScroll($event)"
+          (touchstart)="onTouchStart($event)"
+          (touchmove)="onTouchMove($event)"
+          (touchend)="onTouchEnd($event)"
+          ></canvas>
+          
+</div>
+
+<div class="toolbar">
+  <button (click)="toggleWriteMode()">Write</button>
+  <button (click)="toggleHighlightMode()">Highlight</button>
+  <button (click)="savePdf()">Save</button>
+</div>
