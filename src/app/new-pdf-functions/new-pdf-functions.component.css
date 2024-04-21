@@ -41,4 +41,10 @@
   position: absolute;
   z-index: 0;
 }
-
+.bi{
+  width: 70px;
+  height: 50px;
+  border-radius: 10px;
+  border: none;
+  background-color: rgb(95, 160, 230);
+}

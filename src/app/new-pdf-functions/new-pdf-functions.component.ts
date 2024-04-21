@@ -19,6 +19,8 @@ export class NewPdfFunctionsComponent implements OnInit{
   startY: number = 0;
   isMouseDown: boolean = false;
   annotations: any[] = [];
+  focusedPageNumber: number | null = null;
+  bkpage:number | null = null;
 
   constructor() { }
 
@@ -38,7 +40,6 @@ export class NewPdfFunctionsComponent implements OnInit{
   
   
   renderPage(num: number): void {
-    console.log("this is the page number", num);
     if (this.pdfDoc) {
       this.pdfDoc.getPage(num).then((page: any) => {
         let viewport = page.getViewport({ scale: 1 });
@@ -48,21 +49,17 @@ export class NewPdfFunctionsComponent implements OnInit{
         cv.classList.add('pdf-canvas');
         cv.style.border = "1px solid black";
         cv.style.marginBottom='2%'
-        cv.setAttribute('id', 'pdfCanvas'); // Set id based on the page number
-        cv.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+        cv.setAttribute('id', 'pdfCanvas'); 
+        cv.setAttribute('data-page-number', num.toString());
+        cv.addEventListener('mousedown', () => this.setFocusedPageNumber(num));
         cv.addEventListener('mousemove', this.onMouseMove.bind(this), false);
         cv.addEventListener('mouseup', this.onMouseUp.bind(this), false);
         cv.addEventListener('mouseleave', this.onMouseLeave.bind(this), false);
         cv.addEventListener('touchstart', this.onTouchStart.bind(this), false);
         cv.addEventListener('touchmove', this.onTouchMove.bind(this), false);
         cv.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-  
-        // Append the canvas to the container
         const dv = document.getElementById("pdfContainer");
         dv?.appendChild(cv);
-
-  
-        // Get rendering context for the new canvas
         const ctx = cv.getContext("2d");
   
         let renderContext = {
@@ -77,8 +74,20 @@ export class NewPdfFunctionsComponent implements OnInit{
       });
     }
   }
-  
-  
+  setbkPagenumber(){
+    let bookmarkPage=sessionStorage.getItem("Bookmark");
+    console.log("this is supposed to be bookmark page",bookmarkPage);
+    const canvas = document.querySelector(`.pdf-canvas[data-page-number="${bookmarkPage}"]`) as HTMLElement | null;
+    if (canvas) {
+      canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+  }  
+  setFocusedPageNumber(pageNumber: number): void {
+    sessionStorage.setItem("Bookmark",pageNumber.toString());
+    this.focusedPageNumber = pageNumber;
+    console.log("focused pagenumber" , this.focusedPageNumber)
+  }
   loadPdf(): void {
     pdfjsLib.GlobalWorkerOptions.workerSrc="../../assets/pdf.worker.min.js"
     pdfjsLib.getDocument(this.pdfPath).promise.then((pdf: any) => {
@@ -90,10 +99,6 @@ export class NewPdfFunctionsComponent implements OnInit{
       console.error('Error loading PDF:', error);
     });
   }
-  
-
-
-
   toggleWriteMode(): void {
     this.isWriting = !this.isWriting;
     if (this.isWriting) {
@@ -133,24 +138,6 @@ export class NewPdfFunctionsComponent implements OnInit{
     pdf.save('modified_document.pdf'); // Trigger download of PDF
     console.log('PDF saved successfully');
   }
-
-  // savePdf(): void {
-  //   if (this.canvas !== null) {
-  //     const imageData = this.canvas.toDataURL('image/jpeg'); // Convert canvas to image data URL
-  
-  //     const pdf = new jsPDF(); // Create a new jsPDF instance
-  //     const imgWidth = 210; // Width of A4 page in mm
-  //     const imgHeight = (this.canvas.height * imgWidth) / this.canvas.width; // Maintain aspect ratio
-  
-  //     pdf.addImage(imageData, 'JPEG', 0, 0, imgWidth, imgHeight); // Embed image into PDF
-  
-  //     pdf.save('modified_document.pdf'); // Trigger download of PDF
-  //     console.log('PDF saved successfully');
-  //   } else {
-  //     console.error('Canvas not initialized');
-  //   }
-  // }
-  
   
 
   onMouseDown(event: MouseEvent): void {
@@ -199,7 +186,23 @@ export class NewPdfFunctionsComponent implements OnInit{
       this.saveAnnotation('highlight', this.startX, this.startY);
     }
   }
-  
+  onScroll(event: WheelEvent): void {
+    if (event.deltaY < 0) {
+      this.pageNumber--;
+    } else {
+      this.pageNumber++;
+    }
+
+    if (this.pageNumber < 1) {
+      this.pageNumber = 1;
+    }
+
+    if (this.pageNumber > this.pdfDoc.numPages) {
+      this.pageNumber = this.pdfDoc.numPages;
+    }
+
+    this.renderPage(this.pageNumber);
+  }
   onMouseLeave(): void {
     if (this.isMouseDown && this.isWriting) {
       this.isMouseDown = false;
@@ -346,6 +349,5 @@ export class NewPdfFunctionsComponent implements OnInit{
       this.saveAnnotation('highlight', this.startX, this.startY);
     }
   }
-  
   
 }

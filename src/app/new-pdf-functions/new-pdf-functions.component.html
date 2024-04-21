@@ -3,18 +3,17 @@
           (mousedown)="onMouseDown($event)" 
           (mousemove)="onMouseMove($event)" 
           (mouseup)="onMouseUp()" 
+          (wheel)="onScroll($event)"
           (mouseleave)="onMouseLeave()" 
           (touchstart)="onTouchStart($event)"
           (touchmove)="onTouchMove($event)"
           (touchend)="onTouchEnd($event)"></canvas>
 </div>
-
-
-
 <div class="toolbar">
-  <button (click)="toggleWriteMode()">Write</button>
-  <button (click)="toggleHighlightMode()">Highlight</button>
-  <button (click)="savePdf()">Save</button>
+  <button class="bi bi-pen-fill" (click)="toggleWriteMode()"></button>
+  <button class="bi bi-highlighter" (click)="toggleHighlightMode()"></button>
+  <button class="bi bi-floppy-fill" (click)="savePdf()"></button>
+  <button class="bi" (click)="setbkPagenumber()">bookmark</button>
 </div>
 
 
