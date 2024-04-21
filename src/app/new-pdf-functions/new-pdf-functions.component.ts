@@ -52,6 +52,8 @@ export class NewPdfFunctionsComponent implements OnInit{
         cv.setAttribute('id', 'pdfCanvas'); 
         cv.setAttribute('data-page-number', num.toString());
         cv.addEventListener('mousedown', () => this.setFocusedPageNumber(num));
+        cv.addEventListener('mouseup', () => this.setFocusedPageNumber(num));
+        cv.addEventListener('mousedown', this.onMouseDown.bind(this), false);
         cv.addEventListener('mousemove', this.onMouseMove.bind(this), false);
         cv.addEventListener('mouseup', this.onMouseUp.bind(this), false);
         cv.addEventListener('mouseleave', this.onMouseLeave.bind(this), false);
@@ -74,19 +76,21 @@ export class NewPdfFunctionsComponent implements OnInit{
       });
     }
   }
-  setbkPagenumber(){
+  // setbkPagenumber(){
+  //   let bookmarkPage=sessionStorage.getItem("Bookmark");
+  //   console.log("this is supposed to be bookmark page",bookmarkPage);
+  // }    
+  gotopage(){
     let bookmarkPage=sessionStorage.getItem("Bookmark");
-    console.log("this is supposed to be bookmark page",bookmarkPage);
     const canvas = document.querySelector(`.pdf-canvas[data-page-number="${bookmarkPage}"]`) as HTMLElement | null;
     if (canvas) {
       canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    
-  }  
+  }
   setFocusedPageNumber(pageNumber: number): void {
-    sessionStorage.setItem("Bookmark",pageNumber.toString());
     this.focusedPageNumber = pageNumber;
-    console.log("focused pagenumber" , this.focusedPageNumber)
+    sessionStorage.setItem("Bookmark",this.focusedPageNumber.toString());
+    console.log("this is bookmarkedpage" , this.focusedPageNumber );
   }
   loadPdf(): void {
     pdfjsLib.GlobalWorkerOptions.workerSrc="../../assets/pdf.worker.min.js"
